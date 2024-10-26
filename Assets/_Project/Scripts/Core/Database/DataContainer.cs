@@ -13,7 +13,7 @@ namespace MyCode.Core
             public T Object;
         }
 
-        private ObjectData[] _objectDatas;
+        [SerializeField] private ObjectData[] _objectDatas;
 
         public T GetData(string key)
         {
