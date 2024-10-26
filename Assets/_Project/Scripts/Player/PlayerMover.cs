@@ -1,26 +1,31 @@
+using MyCode.Core;
 using UnityEngine;
+using VContainer;
 
 namespace MyCode._Player
 {
     public class PlayerMover : MonoBehaviour
     {
-        [SerializeField] private PlayerSetting _setting;
-
+        private PlayerSetting _setting;
         private CharacterController _characterController;
-        private AxisInputHandler _moveInputHandler;
-
+        private IInputService _inputService;
         private Vector2 _moveInput;
+        
+        [Inject]
+        public void Construct(IInputService inputService, IDatabase gameDatabase)
+        {
+            _inputService = inputService;
+            _inputService.OnMoveInput += OnMoveInput;
+            _setting = gameDatabase.GetSO<PlayerSetting>("PlayerSetting");
+        }
 
         private void Start()
         {
             _characterController ??= GetComponent<CharacterController>();
-            _moveInputHandler = new AxisInputHandler("Horizontal", "Vertical");
-            _moveInputHandler.OnAxisEvent += OnMoveInput;
         }
 
         private void Update()
         {
-            _moveInputHandler.Update();
             MovePlayer();
         }
 
@@ -37,7 +42,7 @@ namespace MyCode._Player
 
         private void OnDestroy()
         {
-            _moveInputHandler.OnAxisEvent -= OnMoveInput;
+            _inputService.OnMoveInput -= OnMoveInput;
         }
     }
 }

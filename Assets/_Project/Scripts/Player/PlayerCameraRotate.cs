@@ -1,29 +1,35 @@
+using MyCode.Core;
 using UnityEngine;
+using VContainer;
 
 namespace MyCode._Player
 {
     public class PlayerCameraRotate : MonoBehaviour
     {
-        [SerializeField] private PlayerSetting _setting;
-
+        private PlayerSetting _setting;
         private CharacterController _characterController;
-        private AxisInputHandler _rotateInputHandler;
+        private IInputService _inputService;
         private Camera _playerCamera;
         private float _rotationX = 0f;
         private Vector2 _rotateInput;
+
+        [Inject]
+        public void Construct(IInputService inputService, IDatabase gameDatabase)
+        {
+            _inputService = inputService;
+            _inputService.OnCameraRotateInput += OnRotateInput;
+            _setting = gameDatabase.GetSO<PlayerSetting>("PlayerSetting");
+        }
 
         private void Start()
         {
             _characterController ??= GetComponent<CharacterController>();
             _playerCamera ??= Camera.main;
-            _rotateInputHandler = new AxisInputHandler("Mouse X", "Mouse Y");
             Cursor.lockState = CursorLockMode.Locked;
-            _rotateInputHandler.OnAxisEvent += OnRotateInput;
         }
 
         private void Update()
         {
-            _rotateInputHandler.Update();
             RotateCamera();
         }
 
@@ -42,7 +48,7 @@ namespace MyCode._Player
 
         private void OnDestroy()
         {
-            _rotateInputHandler.OnAxisEvent -= OnRotateInput;
+            _inputService.OnCameraRotateInput -= OnRotateInput;
         }
     }
 }

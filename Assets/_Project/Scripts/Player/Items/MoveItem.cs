@@ -11,6 +11,7 @@ namespace MyCode._Player
         {
             _rigidbody ??= GetComponent<Rigidbody>();
         }
+
         private void Update()
         {
             if (_target is not null)

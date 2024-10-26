@@ -1,34 +1,34 @@
+using MyCode.Core;
 using UnityEngine;
+using VContainer;
 
 namespace MyCode._Player
 {
     public class PlayerItemMover : MonoBehaviour
     {
-        [SerializeField] private PlayerSetting _setting;
         [SerializeField] private Transform _holdParent;
 
-        private KeyInputHandler _keyInputHandler;
+        private PlayerSetting _setting;
+        private IInputService _inputService;
         private IMoveItem _moveItem;
         private CharacterController _characterController;
-        private AxisInputHandler _rotateInputHandler;
         private Vector3 _rotateInput;
+
+        [Inject]
+        public void Construct(IInputService inputService, IDatabase gameDatabase)
+        {
+            _inputService = inputService;
+            _inputService.OnItemUpInput += OnItemUpInput;
+            _inputService.OnCameraRotateInput += OnRotateInput;
+            _setting = gameDatabase.GetSO<PlayerSetting>("PlayerSetting");
+        }
 
         private void Start()
         {
             _characterController ??= GetComponent<CharacterController>();
-            _keyInputHandler = new KeyInputHandler(KeyCode.E);
-            _rotateInputHandler = new AxisInputHandler("Mouse X", "Mouse Y");
-            _keyInputHandler.OnDownEvent += OnKeyEvent;
-            _rotateInputHandler.OnAxisEvent += OnRotateInput;
         }
 
-        private void Update()
-        {
-            _keyInputHandler.Update();
-            _rotateInputHandler.Update();
-        }
-
-        private void OnKeyEvent()
+        private void OnItemUpInput()
         {
             if (_moveItem is null)
             {
@@ -69,8 +69,8 @@ namespace MyCode._Player
 
         private void OnDestroy()
         {
-            _keyInputHandler.OnDownEvent -= PickUpObject;
-            _rotateInputHandler.OnAxisEvent -= OnRotateInput;
+            _inputService.OnItemUpInput -= OnItemUpInput;
+            _inputService.OnCameraRotateInput -= OnRotateInput;
         }
     }
 }
