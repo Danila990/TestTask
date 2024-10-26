@@ -17,18 +17,21 @@ namespace MyCode._Player
             if (_target is not null)
             {
                 transform.position = _target.position;
+                if(_rigidbody.angularVelocity.sqrMagnitude > 0)
+                {
+                    _rigidbody.angularVelocity = Vector3.Lerp(_rigidbody.angularVelocity, Vector3.zero, 2 * Time.deltaTime);
+                }
             }
         }
 
         public void StartMove(Transform pointMove)
         {
-            _rigidbody.isKinematic = true;
+            _rigidbody.velocity = Vector3.zero;
             _target = pointMove;
         }
 
         public void StopMove(Vector3 velocity)
         {
-            _rigidbody.isKinematic = false;
             _rigidbody.velocity = velocity;
             _target = null;
         }
